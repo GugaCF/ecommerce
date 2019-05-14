@@ -23,7 +23,7 @@ $app->get('/', function() {
 
 $app->get('/admin', function() {
 
-	User::verifyLogin();
+	User::varifyLogin();
     
 	$page = new PageAdmin();
 
@@ -51,6 +51,7 @@ $app->post('/admin/login', function() {
 	exit;
 
 });
+
 $app->run();
 
  ?>
