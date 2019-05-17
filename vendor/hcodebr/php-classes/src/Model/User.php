@@ -6,6 +6,7 @@ use \Hcode\DB\Sql;
 use \Hcode\Model;
 use \Hcode\Mailer;
 
+define('SECRET_IV', pack('a16', 'senha'));
 define('SECRET', pack('a16', 'senha'));
 
 class User extends Model {
@@ -171,7 +172,9 @@ class User extends Model {
 
 				$dataRecovery = $results2[0];
 
-				$code = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, SECRET, $dataRecovery["idrecovery"], MCRYPT_MODE_ECB));
+				//$code = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, SECRET, $dataRecovery["idrecovery"], MCRYPT_MODE_ECB));
+
+				$code = base64_encode(openssl_encrypt($dataRecovery["idrecovery"], 'AES-128-CBC', SECRET, 0, SECRET_IV));
 
 				$link = "http://www.hcodecommerce.com.br/admin/forgot/reset?code=$code";
 
@@ -192,7 +195,9 @@ class User extends Model {
 
 	public static function validForgotDecrypt($code) {
 
-		$idrecovery = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, SECRET, base64_decode($code), MCRYPT_MODE_ECB);
+		//$idrecovery = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, SECRET, base64_decode($code), MCRYPT_MODE_ECB);
+
+		$idrecovery = openssl_decrypt(base64_decode($code), 'AES-128-CBC', SECRET, 0, SECRET_IV);
 
 		$sql = new Sql();
 
