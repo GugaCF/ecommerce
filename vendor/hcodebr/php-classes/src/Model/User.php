@@ -6,11 +6,11 @@ use \Hcode\DB\Sql;
 use \Hcode\Model;
 use \Hcode\Mailer;
 
+define('SECRET', pack('a16', 'senha'));
+
 class User extends Model {
 
 	const SESSION = "User";
-	const SECRET = "HcodePhp7_Secret";
-	const SECRET_IV = "HcodePhp7_secret";
 
 	public static function login($login, $password) {
 
@@ -20,7 +20,8 @@ class User extends Model {
 			":LOGIN"=>$login
 		));
 
-		if (count($results) === 0) {
+		if (count($results) === 0) 
+		{
 
 			throw new \Exception("Usuário inexistente ou senha inválida.");
 			
@@ -28,7 +29,8 @@ class User extends Model {
 
 		$data = $results[0];
 
-		if (password_verify($password, $data["despassword"]) === true) {
+		if (password_verify($password, $data["despassword"]) === true) 
+		{
 
 			$user = new User();
 
@@ -38,7 +40,9 @@ class User extends Model {
 
 			return $user;
 
-		} else {
+		} 
+		else 
+		{
 
 			throw new \Exception("Usuário inexistente ou senha inválida.");
 
@@ -48,7 +52,8 @@ class User extends Model {
 
 	public static function verifyLogin($inadmin = true) {
 
-		if (!isset($_SESSION[User::SESSION]) || !$_SESSION[User::SESSION] || !(int)$_SESSION[User::SESSION]["iduser"] > 0 || (bool)$_SESSION[User::SESSION]["inadmin"] !== $inadmin) {
+		if (!isset($_SESSION[User::SESSION]) || !$_SESSION[User::SESSION] || !(int)$_SESSION[User::SESSION]["iduser"] > 0 || (bool)$_SESSION[User::SESSION]["inadmin"] !== $inadmin) 
+		{
 
 			header("Location: /admin/login");
 
@@ -138,11 +143,14 @@ class User extends Model {
 			":email"=>$email
 		));
 
-		if (count($results) === 0) {
+		if (count($results) === 0) 
+		{
 
 			throw new \Exception("Não foi possível recuperar a senha");
 
-		} else {
+		} 
+		else 
+		{
 
 			$data = $results[0];
 
@@ -152,15 +160,18 @@ class User extends Model {
 			));
 
 
-			if (count($results2) === 0) {
+			if (count($results2) === 0) 
+			{
 
 				throw new \Exception("Não foi possível recuperar a senha");
 
-			} else {
+			} 
+			else 
+			{
 
 				$dataRecovery = $results2[0];
 
-				$code = base64_encode(openssl_encrypt(json_encode($dataRecovery["idrecovery"]), 'AES-128-CBC', User::SECRET, 0, User::SECRET_IV));
+				$code = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, SECRET, $dataRecovery["idrecovery"], MCRYPT_MODE_ECB));
 
 				$link = "http://www.hcodecommerce.com.br/admin/forgot/reset?code=$code";
 
@@ -171,12 +182,64 @@ class User extends Model {
 
 				$mailer->send();
 
-
+				return $data;
 
 			}
 
 		}
 
+	}
+
+	public static function validForgotDecrypt($code) {
+
+		$idrecovery = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, SECRET, base64_decode($code), MCRYPT_MODE_ECB);
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+			SELECT * FROM tb_userspasswordsrecoveries ur 
+			INNER JOIN tb_users u USING(iduser) 
+			INNER JOIN tb_persons p USING(idperson)
+			WHERE ur.idrecovery = :idrecovery 
+			and ur.dtrecovery is null 
+			and DATE_ADD(ur.dtregister, INTERVAL 1 HOUR) >= NOW();
+			", array(
+			":idrecovery"=>$idrecovery
+		));
+
+		if (count($results) === 0) 
+		{
+
+			throw new \Exception("Não foi possível recuperar a senha");
+
+		}
+		else
+		{
+
+			return $results[0];
+
+		}
+
+	}
+
+	public static function setForgotUsed($idrecovery) {
+
+		$sql = new Sql();
+
+		$sql->query("UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW() where idrecovery = :idrecovery", array(
+			":idrecovery"=>$idrecovery
+		));
+
+	}
+
+	public function setPassword($password) {
+
+		$sql = new Sql();
+
+		$sql->query("UPDATE tb_users SET despassword = :password where iduser = :iduser", array(
+			":password"=>$password,
+			":iduser"=>$this->getiduser()
+		));
 
 	}
 

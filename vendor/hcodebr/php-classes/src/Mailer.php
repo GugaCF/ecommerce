@@ -6,7 +6,7 @@ use Rain\Tpl;
 
 class Mailer {
 
-	const USERNAME = "gugacf2@gamil.com";
+	const USERNAME = "gugacf2@gmail.com";
 	const PASSWORD = "Gug@2001";
 	const NAME_FROM = "Gustavo Campos Freitas";
 
@@ -22,10 +22,12 @@ class Mailer {
 
 		Tpl::configure( $config );		
 
-		$tpl = new Tpl;		
+		$tpl = new Tpl;
 
 		foreach ($data as $key => $value) {
+
 			$tpl->assign($key, $value);
+			
 		}
 
 		$html = $tpl->draw($tplName, true);
@@ -44,7 +46,7 @@ class Mailer {
 		//Set the hostname of the mail server
 		$this->mail->Host = 'smtp.gmail.com';
 		// use
-		// $mail->Host = gethostbyname('smtp.gmail.com');
+		// $this->mail->Host = gethostbyname('smtp.gmail.com');
 		// if your network does not support SMTP over IPv6
 
 		//Set the SMTP port number - 587 for authenticated TLS, a.k.a. RFC4409 SMTP submission
@@ -66,7 +68,7 @@ class Mailer {
 		$this->mail->setFrom(Mailer::USERNAME, Mailer::NAME_FROM);
 
 		//Set an alternative reply-to address
-		//$mail->addReplyTo('replyto@example.com', 'First Last');
+		//$this->mail->addReplyTo('replyto@example.com', 'First Last');
 
 		//Set who the message is to be sent to
 		$this->mail->addAddress($toAddress, $toName);
@@ -82,11 +84,10 @@ class Mailer {
 		$this->mail->AltBody = 'This is a plain-text message body';
 
 		//Attach an image file
-		//$mail->addAttachment('images/phpmailer_mini.png');
-
+		//$this->mail->addAttachment('images/phpmailer_mini.png');
 	}
 
-	public function send(){
+	public function send() {
 
 		return $this->mail->send();
 
