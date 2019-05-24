@@ -27,7 +27,7 @@ class Product extends Model {
 			$row = $p->getValues();
 
 		}
-
+		
 		return $list;
 
 	}
