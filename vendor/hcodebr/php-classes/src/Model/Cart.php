@@ -5,6 +5,7 @@ namespace Hcode\Model;
 use \Hcode\DB\Sql;
 use \Hcode\Model;
 use \Hcode\Mailer;
+use \Hcode\Model\User;
 
 class Cart extends Model {
 
@@ -29,18 +30,31 @@ class Cart extends Model {
 					'dessessionid'=>session_id()
 				];
 
-				$user = User::getFromSession();
+				if (User::checkLogin(false)) {
 
-				if ($user) {
+					$user = User::getFromSession();
 
-					
+					$data['iduser'] = $user->getiduser();
+
 				}
+
+				$cart->setData($data);
+
+				$cart->save();
+
+				$cart->setToSession();
 
 			}
 
 		}
 
 		return $cart;
+
+	}
+
+	public function settoSession() {
+
+		$_SESSION[Cart::SESSION] = $this->getValues();
 
 	}
 
