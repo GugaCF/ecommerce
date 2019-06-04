@@ -148,7 +148,7 @@ class Cart extends Model {
 			SELECT p.idproduct, p.desproduct, p.vlprice, p.vlwidth, p.vlheight, p.vllength, p.vlweight, p.desurl, COUNT(*) AS nrqtd, SUM(p.vlprice) AS vltotal
 			FROM tb_cartsproducts cp 
 			INNER JOIN tb_products p ON cp.idproduct = p.idproduct 
-			WHERE cp.idcart = :idcart AND cp.dtremover IS NULL 
+			WHERE cp.idcart = :idcart AND cp.dtremoved IS NULL 
 			GROUP BY p.idproduct, p.desproduct, p.vlprice, p.vlwidth, p.vlheight, p.vllength, p.vlweight, p.desurl
 			ORDER BY p.desproduct", [
 			':idcart'=>$this->getidcart()
