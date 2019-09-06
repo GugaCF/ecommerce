@@ -166,4 +166,43 @@ $app->get("/checkout", function() {
 
 });
 
+$app->get("/login", function() {
+
+	$page = new Page();
+
+	$page->setTpl("login", [
+		'error'=>User::getError()
+	]);
+
+});
+
+$app->post("/login", function() {
+
+	try {
+
+		User::login($_POST['login'], $_POST['password']);
+
+	} catch(Exception $e) {
+
+		User::setError($e->getMessage());
+
+	}
+
+	header("Location: /checkout");
+
+	exit;
+
+});
+
+$app->get("/logout", function() {
+
+	User::logout();
+
+	header("Location: /login");
+
+	exit;
+
+
+});
+
 ?>
