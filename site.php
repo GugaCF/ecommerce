@@ -397,7 +397,7 @@ $app->post("/profile", function() {
 
 	$user->setData($_POST);
 
-	$user->save();
+	$user->update();
 
 	User::setSuccess("Dados alterados com sucesso!");
 
