@@ -67,7 +67,7 @@ class Order extends Model {
 			INNER JOIN tb_users u ON u.iduser = o.iduser
 			INNER JOIN tb_addresses a USING(idaddress)
 			INNER JOIN tb_persons p ON p.idperson = u.idperson
-			ORDER BY o.dtregister desc
+			ORDER BY o.dtregister DESC
 		");
 
 	}
@@ -77,7 +77,7 @@ class Order extends Model {
 		$sql = new Sql();
 
 		$sql->query("DELETE FROM tb_orders WHERE idorder = :idorder", [
-			'idorder'=>$this->getidorder()
+			':idorder'=>$this->getidorder()
 		]);
 
 	}
